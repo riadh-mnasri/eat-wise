@@ -103,7 +103,8 @@ export default function HomePage() {
             <motion.button
               onClick={findIdeas}
               whileTap={{ scale: 0.97 }}
-              className="w-full rounded-full bg-gradient-to-r from-orange-500 to-rose-500 py-3.5 text-lg font-bold text-white shadow-lg shadow-orange-200 transition hover:opacity-90"
+              whileHover={{ scale: 1.02 }}
+              className="shine-sweep relative isolate w-full overflow-hidden rounded-full bg-gradient-to-r from-orange-500 to-rose-500 py-3.5 text-lg font-bold text-white shadow-lg shadow-orange-200 transition hover:opacity-90"
             >
               Trouver une idée 🍽️
             </motion.button>

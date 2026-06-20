@@ -1,20 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   getFavoriteOrderRecipes,
   getOrderSearchUrl,
 } from "@/lib/suggestionEngine";
-import { getRecipePhotoUrl } from "@/lib/photo";
-import { addHistoryEntry, useCustomPhoto } from "@/lib/storage";
+import { addHistoryEntry } from "@/lib/storage";
 import { Recipe } from "@/lib/types";
+import DishPhoto from "@/components/DishPhoto";
 
 function FavoriteCard({ recipe, index }: { recipe: Recipe; index: number }) {
-  const [customPhoto] = useCustomPhoto(recipe.id);
-  const [photoFailed, setPhotoFailed] = useState(false);
-  const photoUrl = getRecipePhotoUrl(recipe, customPhoto);
   const orderUrl = getOrderSearchUrl(recipe);
 
   function handleOrderNow() {
@@ -36,19 +32,7 @@ function FavoriteCard({ recipe, index }: { recipe: Recipe; index: number }) {
         href={`/repas/${recipe.id}`}
         className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br ${recipe.gradient}`}
       >
-        {!photoFailed ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={photoUrl}
-            alt={recipe.name}
-            onError={() => setPhotoFailed(true)}
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-        ) : (
-          <span className="flex h-full items-center justify-center text-3xl">
-            {recipe.emoji}
-          </span>
-        )}
+        <DishPhoto recipe={recipe} emojiClassName="text-3xl" />
       </Link>
 
       <Link href={`/repas/${recipe.id}`} className="min-w-0 flex-1">

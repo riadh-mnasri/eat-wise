@@ -5,8 +5,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { getOrderSearchUrl, missingIngredients } from "@/lib/suggestionEngine";
 import { addHistoryEntry, useCustomPhoto, usePantry } from "@/lib/storage";
-import { getRecipePhotoUrl } from "@/lib/photo";
 import { MealChoice, Recipe } from "@/lib/types";
+import DishPhoto from "./DishPhoto";
 
 function normalize(name: string) {
   return name.trim().toLowerCase();
@@ -45,11 +45,9 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
   const [pantry, setPantry] = usePantry();
   const [choice, setChoice] = useState<MealChoice | null>(null);
   const [customPhoto, setCustomPhoto] = useCustomPhoto(recipe.id);
-  const [photoFailed, setPhotoFailed] = useState(false);
   const [editingPhoto, setEditingPhoto] = useState(false);
   const [photoInput, setPhotoInput] = useState(customPhoto ?? "");
 
-  const photoUrl = getRecipePhotoUrl(recipe, customPhoto);
   const missing = missingIngredients(recipe, pantry);
   const orderUrl = getOrderSearchUrl(recipe);
 
@@ -134,21 +132,7 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
         }}
         className={`relative h-44 overflow-hidden rounded-3xl bg-gradient-to-br ${recipe.gradient} shadow-lg`}
       >
-        {!photoFailed ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={photoUrl}
-            alt={recipe.name}
-            onError={() => setPhotoFailed(true)}
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            <span className="float-slow text-8xl drop-shadow-[0_8px_16px_rgba(0,0,0,0.25)]">
-              {recipe.emoji}
-            </span>
-          </div>
-        )}
+        <DishPhoto recipe={recipe} emojiClassName="text-8xl" />
         <button
           onClick={() => {
             setPhotoInput(customPhoto ?? "");
@@ -177,7 +161,6 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
           <button
             onClick={() => {
               setCustomPhoto(photoInput || null);
-              setPhotoFailed(false);
               setEditingPhoto(false);
             }}
             className="rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white"
@@ -189,7 +172,6 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
               onClick={() => {
                 setCustomPhoto(null);
                 setPhotoInput("");
-                setPhotoFailed(false);
                 setEditingPhoto(false);
               }}
               className="rounded-full border-2 border-stone-300 px-4 py-2 text-sm font-semibold text-stone-600"

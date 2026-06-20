@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { Recipe } from "@/lib/types";
 import { missingIngredients } from "@/lib/suggestionEngine";
-import { getRecipePhotoUrl } from "@/lib/photo";
-import { useCustomPhoto } from "@/lib/storage";
+import DishPhoto from "./DishPhoto";
 
 const moodLabels: Record<string, { label: string; emoji: string }> = {
   reconfort: { label: "Réconfort", emoji: "🤗" },
@@ -20,9 +19,7 @@ export default function RecipeCard({
   recipe: Recipe;
   pantry: string[];
 }) {
-  const [customPhoto] = useCustomPhoto(recipe.id);
-  const [photoFailed, setPhotoFailed] = useState(false);
-  const photoUrl = getRecipePhotoUrl(recipe, customPhoto);
+  const [photoLoaded, setPhotoLoaded] = useState(false);
 
   const missing = missingIngredients(recipe, pantry);
   const owned = recipe.ingredients.length - missing.length;
@@ -33,24 +30,12 @@ export default function RecipeCard({
       <div
         className={`relative flex h-56 shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br ${recipe.gradient}`}
       >
-        {!photoFailed ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={photoUrl}
-            alt={recipe.name}
-            draggable={false}
-            onError={() => setPhotoFailed(true)}
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-        ) : (
-          <>
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_55%)]" />
-            <span className="float-slow text-[5.5rem] drop-shadow-[0_8px_16px_rgba(0,0,0,0.25)]">
-              {recipe.emoji}
-            </span>
-          </>
-        )}
-        {!photoFailed && (
+        <DishPhoto
+          recipe={recipe}
+          emojiClassName="text-[5.5rem]"
+          onStatusChange={(status) => setPhotoLoaded(status === "loaded")}
+        />
+        {photoLoaded && (
           <span className="absolute bottom-3 left-3 text-2xl drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]">
             {recipe.emoji}
           </span>

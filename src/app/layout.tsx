@@ -36,9 +36,18 @@ export default function RootLayout({
     >
       <body className="relative min-h-full flex flex-col bg-warmscape text-stone-800">
         <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-          <div className="absolute -top-32 -left-24 h-72 w-72 rounded-full bg-orange-300/30 blur-3xl" />
-          <div className="absolute top-1/3 -right-24 h-80 w-80 rounded-full bg-rose-300/30 blur-3xl" />
-          <div className="absolute bottom-0 left-1/4 h-64 w-64 rounded-full bg-amber-200/40 blur-3xl" />
+          <div
+            className="blob-drift absolute -top-32 -left-24 h-72 w-72 rounded-full bg-orange-300/30 blur-3xl"
+            style={{ animationDelay: "0s" }}
+          />
+          <div
+            className="blob-drift absolute top-1/3 -right-24 h-80 w-80 rounded-full bg-rose-300/30 blur-3xl"
+            style={{ animationDelay: "-5s" }}
+          />
+          <div
+            className="blob-drift absolute bottom-0 left-1/4 h-64 w-64 rounded-full bg-amber-200/40 blur-3xl"
+            style={{ animationDelay: "-10s" }}
+          />
         </div>
         <Nav />
         <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 py-6">

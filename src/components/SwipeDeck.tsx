@@ -5,6 +5,7 @@ import {
   AnimatePresence,
   motion,
   useMotionValue,
+  useSpring,
   useTransform,
 } from "framer-motion";
 import RecipeCard from "./RecipeCard";
@@ -46,7 +47,7 @@ export default function SwipeDeck({
       <p className="text-center text-sm font-semibold text-stone-400">
         {index + 1} / {recipes.length}
       </p>
-      <div className="relative h-[420px]">
+      <div className="relative h-[420px]" style={{ perspective: 1000 }}>
         {upNext
           .map((recipe, i) => ({ recipe, depth: i + 1 }))
           .reverse()
@@ -120,17 +121,38 @@ function SwipeCard({
   const yesOpacity = useTransform(x, [20, 110], [0, 1]);
   const noOpacity = useTransform(x, [-110, -20], [1, 0]);
 
+  const tiltXRaw = useMotionValue(0);
+  const tiltYRaw = useMotionValue(0);
+  const rotateX = useSpring(tiltXRaw, { stiffness: 250, damping: 20 });
+  const rotateY = useSpring(tiltYRaw, { stiffness: 250, damping: 20 });
+
+  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const px = (event.clientX - rect.left) / rect.width - 0.5;
+    const py = (event.clientY - rect.top) / rect.height - 0.5;
+    tiltYRaw.set(px * 12);
+    tiltXRaw.set(py * -12);
+  }
+
+  function resetTilt() {
+    tiltXRaw.set(0);
+    tiltYRaw.set(0);
+  }
+
   return (
     <motion.div
       className="absolute inset-0 z-10 cursor-grab active:cursor-grabbing"
-      style={{ x, rotate }}
+      style={{ x, rotate, rotateX, rotateY }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={1}
       onDragEnd={(_, info) => {
+        resetTilt();
         if (info.offset.x > SWIPE_THRESHOLD) onSwipe(1);
         else if (info.offset.x < -SWIPE_THRESHOLD) onSwipe(-1);
       }}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={resetTilt}
       custom={direction}
       variants={cardVariants}
       initial="initial"
