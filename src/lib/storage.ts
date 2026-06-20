@@ -1,10 +1,11 @@
-import { useCallback, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import { EMPTY_PROFILE, HistoryEntry, UserProfile } from "./types";
 
 const KEYS = {
   profile: "mm_profile",
   pantry: "mm_pantry",
   history: "mm_history",
+  customPhotos: "mm_custom_photos",
 } as const;
 
 type Listener = () => void;
@@ -66,6 +67,20 @@ export function addHistoryEntry(entry: HistoryEntry) {
   writeJson(KEYS.history, history.slice(0, 100));
 }
 
+export function getCustomPhotos(): Record<string, string> {
+  return readJson(KEYS.customPhotos, {});
+}
+
+export function setCustomPhoto(recipeId: string, url: string | null) {
+  const photos = getCustomPhotos();
+  if (url && url.trim()) {
+    photos[recipeId] = url.trim();
+  } else {
+    delete photos[recipeId];
+  }
+  writeJson(KEYS.customPhotos, photos);
+}
+
 /**
  * Reactive read of a localStorage-backed key via useSyncExternalStore, so
  * components stay in sync without setState-in-effect (banned by
@@ -96,14 +111,13 @@ export function useHistory(): HistoryEntry[] {
   return raw ? JSON.parse(raw) : [];
 }
 
-export function useUpdateProfile() {
-  return useCallback((updater: (prev: UserProfile) => UserProfile) => {
-    setProfile(updater(getProfile()));
-  }, []);
-}
-
-export function useUpdatePantry() {
-  return useCallback((updater: (prev: string[]) => string[]) => {
-    setPantry(updater(getPantry()));
-  }, []);
+export function useCustomPhoto(
+  recipeId: string,
+): [string | null, (url: string | null) => void] {
+  const raw = useStoredRaw(KEYS.customPhotos);
+  const photos: Record<string, string> = raw ? JSON.parse(raw) : {};
+  return [
+    photos[recipeId] ?? null,
+    (url: string | null) => setCustomPhoto(recipeId, url),
+  ];
 }

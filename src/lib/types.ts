@@ -1,6 +1,11 @@
 export type Mood = "reconfort" | "leger" | "sucre" | "sale";
 
-export type Diet = "vegan" | "vegetarien" | "sans_gluten" | "sans_lactose";
+export type Diet =
+  | "vegan"
+  | "vegetarien"
+  | "sans_gluten"
+  | "sans_lactose"
+  | "halal";
 
 export type Allergen =
   | "gluten"
@@ -29,6 +34,10 @@ export interface Recipe {
   cookBudget: number;
   orderBudget: number;
   ingredients: Ingredient[];
+  /** English keywords used to fetch an appetizing stock photo. */
+  photoKeywords: string[];
+  /** Dishes the user specifically likes to order in, surfaced in "Mes favoris". */
+  favoriteOrder?: boolean;
 }
 
 export interface UserProfile {

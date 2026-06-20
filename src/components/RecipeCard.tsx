@@ -1,5 +1,10 @@
+"use client";
+
+import { useState } from "react";
 import { Recipe } from "@/lib/types";
 import { missingIngredients } from "@/lib/suggestionEngine";
+import { getRecipePhotoUrl } from "@/lib/photo";
+import { useCustomPhoto } from "@/lib/storage";
 
 const moodLabels: Record<string, { label: string; emoji: string }> = {
   reconfort: { label: "Réconfort", emoji: "🤗" },
@@ -15,6 +20,10 @@ export default function RecipeCard({
   recipe: Recipe;
   pantry: string[];
 }) {
+  const [customPhoto] = useCustomPhoto(recipe.id);
+  const [photoFailed, setPhotoFailed] = useState(false);
+  const photoUrl = getRecipePhotoUrl(recipe, customPhoto);
+
   const missing = missingIngredients(recipe, pantry);
   const owned = recipe.ingredients.length - missing.length;
   const ownedRatio = owned / recipe.ingredients.length;
@@ -22,12 +31,30 @@ export default function RecipeCard({
   return (
     <div className="flex h-full select-none flex-col overflow-hidden rounded-[28px] bg-white shadow-[0_20px_45px_-15px_rgba(120,53,15,0.35)]">
       <div
-        className={`relative flex h-56 shrink-0 items-center justify-center bg-gradient-to-br ${recipe.gradient}`}
+        className={`relative flex h-56 shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br ${recipe.gradient}`}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_55%)]" />
-        <span className="float-slow text-[5.5rem] drop-shadow-[0_8px_16px_rgba(0,0,0,0.25)]">
-          {recipe.emoji}
-        </span>
+        {!photoFailed ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={photoUrl}
+            alt={recipe.name}
+            draggable={false}
+            onError={() => setPhotoFailed(true)}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_55%)]" />
+            <span className="float-slow text-[5.5rem] drop-shadow-[0_8px_16px_rgba(0,0,0,0.25)]">
+              {recipe.emoji}
+            </span>
+          </>
+        )}
+        {!photoFailed && (
+          <span className="absolute bottom-3 left-3 text-2xl drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]">
+            {recipe.emoji}
+          </span>
+        )}
         <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-white/85 px-3 py-1 text-xs font-bold text-stone-700 shadow-sm backdrop-blur">
           {Math.round(ownedRatio * 100)}%{" "}
           <span className="font-medium text-stone-400">au frigo</span>

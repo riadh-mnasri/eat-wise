@@ -67,3 +67,13 @@ export function getSuggestions(
 export function getRecipeById(id: string): Recipe | undefined {
   return recipes.find((r) => r.id === id);
 }
+
+export function getFavoriteOrderRecipes(): Recipe[] {
+  return recipes.filter((r) => r.favoriteOrder);
+}
+
+export function getOrderSearchUrl(recipe: Recipe): string {
+  return `https://www.google.com/search?q=${encodeURIComponent(
+    `${recipe.name} livraison`,
+  )}`;
+}

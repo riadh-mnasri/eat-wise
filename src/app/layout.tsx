@@ -44,6 +44,9 @@ export default function RootLayout({
         <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 py-6">
           {children}
         </main>
+        <footer className="mx-auto w-full max-w-3xl px-4 py-4 text-center text-xs text-stone-400">
+          © {new Date().getFullYear()} Riadh Mnasri — Mange Malin
+        </footer>
       </body>
     </html>
   );

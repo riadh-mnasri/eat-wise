@@ -9,6 +9,7 @@ const DIETS: { id: Diet; label: string; emoji: string }[] = [
   { id: "vegetarien", label: "Végétarien", emoji: "🥦" },
   { id: "sans_gluten", label: "Sans gluten", emoji: "🌾" },
   { id: "sans_lactose", label: "Sans lactose", emoji: "🥛" },
+  { id: "halal", label: "Halal", emoji: "✅" },
 ];
 
 const ALLERGENS: { id: Allergen; label: string; emoji: string }[] = [

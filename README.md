@@ -6,20 +6,24 @@ No backend, no signup. Everything runs in the browser and is saved to `localStor
 
 ## Features
 
+- **Real swipe gestures** — drag suggestion cards left/right (Tinder-style), stacked deck with depth, animated OUI/NON labels
 - **Mood-based suggestions** — pick one or more cravings (comfort, light, sweet, savory) and get a swipeable deck of matching recipes
 - **Pantry-aware** — recipes are scored higher when you already have the ingredients at home, to cut food waste
-- **Diet & allergy filters** — vegan, vegetarian, gluten-free, lactose-free, plus allergen exclusions (gluten, lactose, egg, shellfish, peanuts, soy)
+- **Diet & allergy filters** — vegan, vegetarian, gluten-free, lactose-free, halal, plus allergen exclusions (gluten, lactose, egg, shellfish, peanuts, soy)
 - **Calorie goal aware** — suggestions lean toward recipes that fit your daily calorie target
 - **No-repeat logic** — recently eaten meals are deprioritized so suggestions stay varied
 - **Cook vs. order comparator** — see estimated time, budget, and calories for cooking at home vs. ordering delivery
+- **Favorites to order** — a dedicated shortlist of go-to delivery dishes, one tap away from an order search, no swiping needed
 - **Auto-generated shopping list** — only the ingredients you're missing for the recipe you picked
-- **Meal history** — track what you've cooked or ordered over time
+- **Dish photos** — fetched automatically by keyword (LoremFlickr), with a manual override per dish if you want to set your own picture
+- **Meal history** — track what you've cooked or ordered over time, with a streak counter
 
 ## Tech stack
 
 - [Next.js 16](https://nextjs.org) (App Router, Turbopack, React 19.2)
 - TypeScript
 - Tailwind CSS v4
+- [framer-motion](https://www.framer.com/motion/) for drag gestures and animations
 - `localStorage` + `useSyncExternalStore` for client-side persistence — no database, no API
 
 ## Getting started
@@ -55,19 +59,23 @@ Recipe data lives in [`src/lib/recipes.ts`](src/lib/recipes.ts) — a static lis
 src/
   app/
     page.tsx                # home: mood picker + swipe deck
+    favoris/page.tsx        # quick-order favorite dishes
     stock/page.tsx          # pantry manager
     profil/page.tsx         # diet/allergy/calorie profile
     repas/[id]/page.tsx     # meal detail (server) -> RecipeDetail (client)
     historique/page.tsx     # meal history
+    template.tsx             # page transition wrapper
   components/
     Nav.tsx
     RecipeCard.tsx
     RecipeDetail.tsx
+    SwipeDeck.tsx
   lib/
     types.ts                # domain types
     recipes.ts               # recipe dataset
     suggestionEngine.ts       # scoring/matching logic
     storage.ts                # localStorage helpers + reactive hooks
+    photo.ts                  # dish photo URL resolution (stock + manual override)
 ```
 
 ## Roadmap ideas
@@ -76,3 +84,7 @@ src/
 - Real delivery integrations (Uber Eats, Deliveroo) instead of a search link
 - Multiple family profiles with compromise suggestions
 - Taste learning over time based on past choices
+
+## License
+
+© 2026 Riadh Mnasri. All rights reserved — see [LICENSE](LICENSE). The source is public for portfolio/demonstration purposes only.

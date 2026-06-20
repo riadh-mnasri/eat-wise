@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { missingIngredients } from "@/lib/suggestionEngine";
-import { addHistoryEntry, usePantry } from "@/lib/storage";
+import { getOrderSearchUrl, missingIngredients } from "@/lib/suggestionEngine";
+import { addHistoryEntry, useCustomPhoto, usePantry } from "@/lib/storage";
+import { getRecipePhotoUrl } from "@/lib/photo";
 import { MealChoice, Recipe } from "@/lib/types";
 
 function normalize(name: string) {
@@ -43,11 +44,14 @@ function CelebrationBurst() {
 export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
   const [pantry, setPantry] = usePantry();
   const [choice, setChoice] = useState<MealChoice | null>(null);
+  const [customPhoto, setCustomPhoto] = useCustomPhoto(recipe.id);
+  const [photoFailed, setPhotoFailed] = useState(false);
+  const [editingPhoto, setEditingPhoto] = useState(false);
+  const [photoInput, setPhotoInput] = useState(customPhoto ?? "");
 
+  const photoUrl = getRecipePhotoUrl(recipe, customPhoto);
   const missing = missingIngredients(recipe, pantry);
-  const orderUrl = `https://www.google.com/search?q=${encodeURIComponent(
-    `${recipe.name} livraison`,
-  )}`;
+  const orderUrl = getOrderSearchUrl(recipe);
 
   function handleChoice(value: MealChoice) {
     addHistoryEntry({
@@ -128,12 +132,73 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
           hidden: { opacity: 0, y: 12 },
           visible: { opacity: 1, y: 0 },
         }}
-        className={`flex h-44 items-center justify-center rounded-3xl bg-gradient-to-br ${recipe.gradient} shadow-lg`}
+        className={`relative h-44 overflow-hidden rounded-3xl bg-gradient-to-br ${recipe.gradient} shadow-lg`}
       >
-        <span className="float-slow text-8xl drop-shadow-[0_8px_16px_rgba(0,0,0,0.25)]">
-          {recipe.emoji}
-        </span>
+        {!photoFailed ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={photoUrl}
+            alt={recipe.name}
+            onError={() => setPhotoFailed(true)}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            <span className="float-slow text-8xl drop-shadow-[0_8px_16px_rgba(0,0,0,0.25)]">
+              {recipe.emoji}
+            </span>
+          </div>
+        )}
+        <button
+          onClick={() => {
+            setPhotoInput(customPhoto ?? "");
+            setEditingPhoto((v) => !v);
+          }}
+          aria-label="Changer la photo"
+          className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/85 text-sm shadow-sm backdrop-blur transition hover:bg-white"
+        >
+          ✏️
+        </button>
       </motion.div>
+
+      {editingPhoto && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          className="flex gap-2"
+        >
+          <input
+            value={photoInput}
+            onChange={(e) => setPhotoInput(e.target.value)}
+            placeholder="Coller l'URL d'une photo..."
+            className="flex-1 rounded-full border-2 border-stone-200 px-4 py-2 text-sm outline-none focus:border-orange-400"
+          />
+          <button
+            onClick={() => {
+              setCustomPhoto(photoInput || null);
+              setPhotoFailed(false);
+              setEditingPhoto(false);
+            }}
+            className="rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white"
+          >
+            Enregistrer
+          </button>
+          {customPhoto && (
+            <button
+              onClick={() => {
+                setCustomPhoto(null);
+                setPhotoInput("");
+                setPhotoFailed(false);
+                setEditingPhoto(false);
+              }}
+              className="rounded-full border-2 border-stone-300 px-4 py-2 text-sm font-semibold text-stone-600"
+            >
+              Réinitialiser
+            </button>
+          )}
+        </motion.div>
+      )}
 
       <motion.div
         variants={{

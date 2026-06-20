@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import SwipeDeck from "@/components/SwipeDeck";
 import { getSuggestions } from "@/lib/suggestionEngine";
@@ -106,6 +107,12 @@ export default function HomePage() {
             >
               Trouver une idée 🍽️
             </motion.button>
+            <Link
+              href="/favoris"
+              className="block text-center text-sm font-semibold text-orange-600 underline underline-offset-2"
+            >
+              🛵 Voir mes favoris à commander
+            </Link>
           </motion.div>
         )}
 
