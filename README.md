@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EatWise 🍽️
 
-## Getting Started
+**What should I eat today?** EatWise answers in three taps: pick a craving, swipe through suggestions tailored to what's in your kitchen and your dietary needs, then decide to cook or order — with a shopping list and a cook-vs-order comparison ready either way.
 
-First, run the development server:
+No backend, no signup. Everything runs in the browser and is saved to `localStorage` on your device.
+
+## Features
+
+- **Mood-based suggestions** — pick one or more cravings (comfort, light, sweet, savory) and get a swipeable deck of matching recipes
+- **Pantry-aware** — recipes are scored higher when you already have the ingredients at home, to cut food waste
+- **Diet & allergy filters** — vegan, vegetarian, gluten-free, lactose-free, plus allergen exclusions (gluten, lactose, egg, shellfish, peanuts, soy)
+- **Calorie goal aware** — suggestions lean toward recipes that fit your daily calorie target
+- **No-repeat logic** — recently eaten meals are deprioritized so suggestions stay varied
+- **Cook vs. order comparator** — see estimated time, budget, and calories for cooking at home vs. ordering delivery
+- **Auto-generated shopping list** — only the ingredients you're missing for the recipe you picked
+- **Meal history** — track what you've cooked or ordered over time
+
+## Tech stack
+
+- [Next.js 16](https://nextjs.org) (App Router, Turbopack, React 19.2)
+- TypeScript
+- Tailwind CSS v4
+- `localStorage` + `useSyncExternalStore` for client-side persistence — no database, no API
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The app runs on **http://localhost:3210** (a non-default port, to avoid clashing with other local projects on 3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Other scripts:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build   # production build
+npm run start   # serve the production build (port 3210)
+npm run lint     # ESLint
+```
 
-## Learn More
+## How the suggestion engine works
 
-To learn more about Next.js, take a look at the following resources:
+See [`src/lib/suggestionEngine.ts`](src/lib/suggestionEngine.ts). For a given set of cravings:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Recipes are filtered out if they violate your diet or allergy profile (`src/lib/types.ts`, `src/app/profil`)
+2. Remaining recipes are scored on: mood match, how many ingredients you already have in your pantry (`src/app/stock`), how recently you ate them (history penalty), and closeness to your calorie goal
+3. The top-scoring recipes form the swipe deck on the home page
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Recipe data lives in [`src/lib/recipes.ts`](src/lib/recipes.ts) — a static list, easy to extend with new dishes.
 
-## Deploy on Vercel
+## Project structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+  app/
+    page.tsx                # home: mood picker + swipe deck
+    stock/page.tsx          # pantry manager
+    profil/page.tsx         # diet/allergy/calorie profile
+    repas/[id]/page.tsx     # meal detail (server) -> RecipeDetail (client)
+    historique/page.tsx     # meal history
+  components/
+    Nav.tsx
+    RecipeCard.tsx
+    RecipeDetail.tsx
+  lib/
+    types.ts                # domain types
+    recipes.ts               # recipe dataset
+    suggestionEngine.ts       # scoring/matching logic
+    storage.ts                # localStorage helpers + reactive hooks
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Roadmap ideas
+
+- Fridge photo scan to update pantry without manual entry
+- Real delivery integrations (Uber Eats, Deliveroo) instead of a search link
+- Multiple family profiles with compromise suggestions
+- Taste learning over time based on past choices
