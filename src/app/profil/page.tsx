@@ -1,23 +1,68 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { useProfile } from "@/lib/storage";
 import { Allergen, Diet } from "@/lib/types";
 
-const DIETS: { id: Diet; label: string }[] = [
-  { id: "vegan", label: "Vegan" },
-  { id: "vegetarien", label: "Végétarien" },
-  { id: "sans_gluten", label: "Sans gluten" },
-  { id: "sans_lactose", label: "Sans lactose" },
+const DIETS: { id: Diet; label: string; emoji: string }[] = [
+  { id: "vegan", label: "Vegan", emoji: "🌱" },
+  { id: "vegetarien", label: "Végétarien", emoji: "🥦" },
+  { id: "sans_gluten", label: "Sans gluten", emoji: "🌾" },
+  { id: "sans_lactose", label: "Sans lactose", emoji: "🥛" },
 ];
 
-const ALLERGENS: { id: Allergen; label: string }[] = [
-  { id: "gluten", label: "Gluten" },
-  { id: "lactose", label: "Lactose" },
-  { id: "oeuf", label: "Œuf" },
-  { id: "fruits_de_mer", label: "Fruits de mer" },
-  { id: "arachides", label: "Arachides" },
-  { id: "soja", label: "Soja" },
+const ALLERGENS: { id: Allergen; label: string; emoji: string }[] = [
+  { id: "gluten", label: "Gluten", emoji: "🌾" },
+  { id: "lactose", label: "Lactose", emoji: "🥛" },
+  { id: "oeuf", label: "Œuf", emoji: "🥚" },
+  { id: "fruits_de_mer", label: "Fruits de mer", emoji: "🦐" },
+  { id: "arachides", label: "Arachides", emoji: "🥜" },
+  { id: "soja", label: "Soja", emoji: "🫘" },
 ];
+
+function Chip({
+  active,
+  emoji,
+  label,
+  activeClass,
+  onClick,
+}: {
+  active: boolean;
+  emoji: string;
+  label: string;
+  activeClass: string;
+  onClick: () => void;
+}) {
+  return (
+    <motion.button
+      onClick={onClick}
+      whileTap={{ scale: 0.94 }}
+      animate={{ scale: active ? 1.04 : 1 }}
+      transition={{ type: "spring", stiffness: 400, damping: 22 }}
+      className={`relative flex items-center gap-1.5 rounded-full border-2 px-4 py-2 text-sm font-medium transition-colors ${
+        active
+          ? activeClass
+          : "border-stone-200 bg-white text-stone-600 hover:border-stone-300"
+      }`}
+    >
+      <span>{emoji}</span>
+      {label}
+      <AnimatePresence>
+        {active && (
+          <motion.span
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 500, damping: 20 }}
+            className="ml-0.5 text-xs"
+          >
+            ✓
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </motion.button>
+  );
+}
 
 export default function ProfilPage() {
   const [profile, setProfile] = useProfile();
@@ -52,44 +97,34 @@ export default function ProfilPage() {
       <section className="space-y-2">
         <h2 className="font-semibold text-stone-700">Régime alimentaire</h2>
         <div className="flex flex-wrap gap-2">
-          {DIETS.map((diet) => {
-            const active = profile.diets.includes(diet.id);
-            return (
-              <button
-                key={diet.id}
-                onClick={() => toggleDiet(diet.id)}
-                className={`rounded-full border-2 px-4 py-2 text-sm font-medium transition ${
-                  active
-                    ? "border-orange-500 bg-orange-50 text-orange-700"
-                    : "border-stone-200 bg-white text-stone-600 hover:border-orange-300"
-                }`}
-              >
-                {diet.label}
-              </button>
-            );
-          })}
+          {DIETS.map((diet) => (
+            <Chip
+              key={diet.id}
+              emoji={diet.emoji}
+              label={diet.label}
+              active={profile.diets.includes(diet.id)}
+              onClick={() => toggleDiet(diet.id)}
+              activeClass="border-orange-500 bg-orange-50 text-orange-700"
+            />
+          ))}
         </div>
       </section>
 
       <section className="space-y-2">
-        <h2 className="font-semibold text-stone-700">Allergies / intolérances</h2>
+        <h2 className="font-semibold text-stone-700">
+          Allergies / intolérances
+        </h2>
         <div className="flex flex-wrap gap-2">
-          {ALLERGENS.map((allergen) => {
-            const active = profile.allergies.includes(allergen.id);
-            return (
-              <button
-                key={allergen.id}
-                onClick={() => toggleAllergy(allergen.id)}
-                className={`rounded-full border-2 px-4 py-2 text-sm font-medium transition ${
-                  active
-                    ? "border-rose-500 bg-rose-50 text-rose-700"
-                    : "border-stone-200 bg-white text-stone-600 hover:border-rose-300"
-                }`}
-              >
-                {allergen.label}
-              </button>
-            );
-          })}
+          {ALLERGENS.map((allergen) => (
+            <Chip
+              key={allergen.id}
+              emoji={allergen.emoji}
+              label={allergen.label}
+              active={profile.allergies.includes(allergen.id)}
+              onClick={() => toggleAllergy(allergen.id)}
+              activeClass="border-rose-500 bg-rose-50 text-rose-700"
+            />
+          ))}
         </div>
       </section>
 
@@ -108,7 +143,7 @@ export default function ProfilPage() {
             })
           }
           placeholder="ex: 2000"
-          className="w-40 rounded-full border-2 border-stone-200 px-4 py-2.5 outline-none focus:border-orange-400"
+          className="w-40 rounded-full border-2 border-stone-200 px-4 py-2.5 outline-none transition-shadow focus:border-orange-400 focus:shadow-[0_0_0_4px_rgba(251,146,60,0.15)]"
         />
       </section>
     </div>

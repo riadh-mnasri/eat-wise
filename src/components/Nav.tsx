@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 
 const links = [
   { href: "/", label: "Accueil" },
@@ -14,9 +15,12 @@ export default function Nav() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-10 bg-gradient-to-r from-orange-500 via-rose-500 to-amber-500 text-white shadow-md">
+    <header className="sticky top-0 z-20 bg-gradient-to-r from-orange-500 via-rose-500 to-amber-500 text-white shadow-md backdrop-blur">
       <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-        <Link href="/" className="text-xl font-bold tracking-tight">
+        <Link
+          href="/"
+          className="font-display text-xl font-bold tracking-tight"
+        >
           🍽️ Mange Malin
         </Link>
         <nav className="flex flex-wrap gap-1 text-sm font-medium">
@@ -26,13 +30,18 @@ export default function Nav() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`rounded-full px-3 py-1.5 transition ${
-                  active
-                    ? "bg-white text-orange-600"
-                    : "text-white/90 hover:bg-white/15"
+                className={`relative rounded-full px-3 py-1.5 transition-colors ${
+                  active ? "text-orange-600" : "text-white/90 hover:bg-white/15"
                 }`}
               >
-                {link.label}
+                {active && (
+                  <motion.span
+                    layoutId="nav-active-pill"
+                    className="absolute inset-0 rounded-full bg-white"
+                    transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                  />
+                )}
+                <span className="relative z-10">{link.label}</span>
               </Link>
             );
           })}

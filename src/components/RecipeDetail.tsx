@@ -2,12 +2,42 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { missingIngredients } from "@/lib/suggestionEngine";
 import { addHistoryEntry, usePantry } from "@/lib/storage";
 import { MealChoice, Recipe } from "@/lib/types";
 
 function normalize(name: string) {
   return name.trim().toLowerCase();
+}
+
+const BURST_EMOJIS = ["✨", "🎉", "😋", "👏", "🔥", "💛"];
+
+function CelebrationBurst() {
+  return (
+    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+      {BURST_EMOJIS.map((emoji, i) => {
+        const angle = (i / BURST_EMOJIS.length) * Math.PI * 2;
+        const distance = 100;
+        return (
+          <motion.span
+            key={emoji}
+            className="absolute text-2xl"
+            initial={{ x: 0, y: 0, opacity: 1, scale: 0.4 }}
+            animate={{
+              x: Math.cos(angle) * distance,
+              y: Math.sin(angle) * distance,
+              opacity: 0,
+              scale: 1,
+            }}
+            transition={{ duration: 0.9, ease: "easeOut" }}
+          >
+            {emoji}
+          </motion.span>
+        );
+      })}
+    </div>
+  );
 }
 
 export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
@@ -40,14 +70,32 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
 
   if (choice) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-        <p className="text-4xl">{choice === "cuisine" ? "👨‍🍳" : "🛵"}</p>
-        <h1 className="text-xl font-bold text-stone-800">
+      <div className="relative flex flex-1 flex-col items-center justify-center gap-4 text-center">
+        <CelebrationBurst />
+        <motion.p
+          className="text-5xl"
+          initial={{ scale: 0 }}
+          animate={{ scale: [0, 1.25, 1] }}
+          transition={{ duration: 0.5 }}
+        >
+          {choice === "cuisine" ? "👨‍🍳" : "🛵"}
+        </motion.p>
+        <motion.h1
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="text-xl font-bold text-stone-800"
+        >
           {choice === "cuisine"
             ? "Bon appétit, régale-toi !"
             : "Commande envoyée, à toi de valider sur l'appli !"}
-        </h1>
-        <div className="flex gap-3">
+        </motion.h1>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="flex gap-3"
+        >
           <Link
             href="/"
             className="rounded-full bg-gradient-to-r from-orange-500 to-rose-500 px-5 py-2.5 font-semibold text-white shadow-md"
@@ -60,25 +108,50 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
           >
             Mon historique
           </Link>
-        </div>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-6">
-      <div
-        className={`flex h-44 items-center justify-center rounded-3xl bg-gradient-to-br ${recipe.gradient} text-8xl shadow-lg`}
+    <motion.div
+      className="flex flex-1 flex-col gap-6"
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: {},
+        visible: { transition: { staggerChildren: 0.06 } },
+      }}
+    >
+      <motion.div
+        variants={{
+          hidden: { opacity: 0, y: 12 },
+          visible: { opacity: 1, y: 0 },
+        }}
+        className={`flex h-44 items-center justify-center rounded-3xl bg-gradient-to-br ${recipe.gradient} shadow-lg`}
       >
-        {recipe.emoji}
-      </div>
+        <span className="float-slow text-8xl drop-shadow-[0_8px_16px_rgba(0,0,0,0.25)]">
+          {recipe.emoji}
+        </span>
+      </motion.div>
 
-      <div>
+      <motion.div
+        variants={{
+          hidden: { opacity: 0, y: 12 },
+          visible: { opacity: 1, y: 0 },
+        }}
+      >
         <h1 className="text-2xl font-bold text-stone-800">{recipe.name}</h1>
         <p className="text-stone-500">{recipe.cuisine}</p>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <motion.div
+        variants={{
+          hidden: { opacity: 0, y: 12 },
+          visible: { opacity: 1, y: 0 },
+        }}
+        className="grid grid-cols-2 gap-3"
+      >
         <div className="rounded-2xl bg-white p-4 shadow-sm">
           <p className="text-sm text-stone-500">👨‍🍳 Cuisiner</p>
           <p className="text-lg font-bold text-stone-800">
@@ -93,9 +166,15 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
           </p>
           <p className="text-sm text-stone-500">Livré chez toi</p>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="space-y-2">
+      <motion.div
+        variants={{
+          hidden: { opacity: 0, y: 12 },
+          visible: { opacity: 1, y: 0 },
+        }}
+        className="space-y-2"
+      >
         <h2 className="font-semibold text-stone-700">
           Liste de courses ({missing.length} à acheter)
         </h2>
@@ -105,27 +184,38 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
           </p>
         ) : (
           <ul className="space-y-1">
-            {missing.map((i) => (
-              <li
+            {missing.map((i, idx) => (
+              <motion.li
                 key={i.name}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.25 + idx * 0.05 }}
                 className="flex justify-between rounded-xl bg-white px-3 py-2 text-stone-700 shadow-sm"
               >
                 <span>{i.name}</span>
                 <span className="text-stone-400">{i.quantity}</span>
-              </li>
+              </motion.li>
             ))}
           </ul>
         )}
-      </div>
+      </motion.div>
 
-      <div className="mt-auto flex flex-col gap-3 pt-4">
-        <button
+      <motion.div
+        variants={{
+          hidden: { opacity: 0, y: 12 },
+          visible: { opacity: 1, y: 0 },
+        }}
+        className="mt-auto flex flex-col gap-3 pt-4"
+      >
+        <motion.button
+          whileTap={{ scale: 0.97 }}
           onClick={() => handleChoice("cuisine")}
           className="rounded-full bg-gradient-to-r from-orange-500 to-rose-500 py-3.5 font-bold text-white shadow-md transition hover:opacity-90"
         >
           Je cuisine ce plat
-        </button>
-        <a
+        </motion.button>
+        <motion.a
+          whileTap={{ scale: 0.97 }}
           href={orderUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -133,8 +223,8 @@ export default function RecipeDetail({ recipe }: { recipe: Recipe }) {
           className="rounded-full border-2 border-stone-300 py-3.5 text-center font-bold text-stone-600 transition hover:bg-stone-100"
         >
           Je commande à la place
-        </a>
-      </div>
-    </div>
+        </motion.a>
+      </motion.div>
+    </motion.div>
   );
 }
