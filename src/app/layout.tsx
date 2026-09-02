@@ -54,7 +54,11 @@ export default function RootLayout({
           {children}
         </main>
         <footer className="mx-auto w-full max-w-3xl px-4 py-4 text-center text-xs text-stone-400">
-          © {new Date().getFullYear()} Riadh Mnasri — Mange Malin
+          © {new Date().getFullYear()}{" "}
+          <a href="https://riadh-mnasri.pro" className="hover:underline">
+            Riadh Mnasri
+          </a>{" "}
+          — Mange Malin
         </footer>
       </body>
     </html>
